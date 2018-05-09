@@ -1,0 +1,766 @@
+---
+title: "HS650 Term Paper Project"
+author: "Omkar Sunkersett"
+date: "4/14/2018"
+output: html_document
+---
+
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## HS650 TERM PAPER PROJECT
+## Winter 2018, DSPA (HS650)
+## Name: Omkar Sunkersett
+## UMich E-mail: osunkers@umich.edu
+## I certify that the following paper represents my own independent work and conforms with the guidelines of academic honesty described in the UMich student handbook.
+
+
+# TOPIC: BUILDING A PREDICTIVE MODEL FOR DETECTING DIABETES MELLITUS IN PATIENTS
+
+# ABSTRACT
+```{r echo=FALSE}
+cat("This term project paper studies a serious disease -- Diabetes Mellitus (Type II) -- widespread in the world. Diabetes can lead to a variety of health complications such as permanent blindness caused by glaucoma of the eyes. Diabetes is also a hereditary condition in many cases and depends upon a variety of physical factors of the human body. This research project explores some of the physical factors of the human body to build a predictive model for detecting diabetes mellitus in patients based upon real medical records obtained from a small population in the United States. It will help researchers to develop better predictive models for detecting diabetes mellitus in patients in future.")
+```
+
+# INTRODUCTION
+```{r echo=FALSE}
+cat("Diabetes Mellitus is a serious disease in which the body’s ability to produce or respond to the hormone insulin is impaired, resulting in abnormal metabolism of carbohydrates and elevated levels of glucose in the blood and urine [1]. It begins with insulin resistance, which is a condition in which the body's cells fail to respond to the hormone insulin in a proper manner. As this disease progresses, the patient may also develop a condition in which their body no longer produces insulin. Though hereditary factors may play a role in the onset of diabetes, the most common causes are excess of body weight, typically body mass index (BMI) and lack of proper exercise [2].\n
+It is estimated that over 400 million people worldwide have diabetes mellitus with 90% of cases being diagnosed as type-II [3, 4, 5]. One thing about diabetes mellitus is that it is not gender specific as the rate of diabetes is nearly the same for men as that for women [6]. The global economic cost for diabetes is above USD 600 Billion with the cost being above USD 200 Billion in the USA alone [7, 8]. This research project examines some physical body parameters obtained from patients in the United States to build a predictive model for detecting the onset of diabetes in a certain population of people based in the United States using supervised and unsupervised machine learning techniques such as classification, regression, clustering and neural network analysis [9].")
+```
+
+# PROBLEM DEFINITION AND DATA
+```{r echo=FALSE}
+cat("This is an exploratory data analysis and machine learning problem on a dataset obtained from data.world [10]. The original dataset is available in the UCI Machine Learning Repository [11]. Exploratory analysis should be performed to engage in a preliminary analysis of the available data. Preliminary tests help discover relationships amongst the variables of the dataset. These relationships help us decide the important features of the dataset. Each feature is basically a variable or an attribute of the dataset. The attributes of the dataset can be ranked according to their relative importance so that they can be selected as features of the predictive model. My approach uses both supervised and unsupervised learning techniques such as regression or classification and k-means or neural networks, respectively.\n 
+The diabetes dataset has been obtained from data.world. It consists of nine attributes: Pregnancies, Glucose, Blood Pressure, Skin Thickness, Insulin, Body Mass Index (BMI), Diabetes Pedigree Function, Age and Outcome. These attributes are explained below in more detail [10, 11] --
+1. Pregnancies: This indicates the number of times the female subject has been pregnant.
+2. Glucose: This indicates the plasma glucose concentration every 2 hours in an oral glucose tolerance test.
+3. Blood Pressure: This indicates the diastolic blood pressure of the female subject (in mm Hg).
+4. Skin Thickness: This indicates the triceps skin fold thickness for the female subject (in mm).
+5. Insulin: This indicates the female subject's serum insulin level every 2 hours (mu U/ml).
+6. Body Mass Index (BMI): This indicates the body mass index of the female subject (weight in kg/(height in m)^2).
+7. Diabetes Pedigree Function: This is a measure of the genetic influence/hereditary risk to the onset of diabetes mellitus (pedi).
+8. Outcome: This indicates whether a female subject was diagnosed with diabetes mellitus or not. A value of 1 indicates that the female subject tested positive, whereas a value of 0 indicates that the female subject tested negative.")
+```
+
+# METHODOLOGY
+```{r echo=FALSE}
+cat("HYPOTHESIS / BASELINE: We are not sure which factors contribute to the onset of diabetes mellitus in patients and hence cannot build predictive models for detecting diabetes in patients.\n")
+cat("This problem can be explored in a number of ways. For the scope of this project, I have split my problem-solving approach into multiple steps, from loading the required packages to comparing the final results. The first step is to install and load the required packages if they are not installed in R Studio. The second step is to load the dataset to study the dimensions, structure, summary and distribution of its variables. The third step is to remove the missing values from the dataset as these can affect our analysis in a negative manner. The fourth step is to study the skewness of the variables of the dataset using histogram analysis. The fifth step is to study the boxplots and density curves of some important variables such as Diabetes Pedigree Function and Plasma Glucose. The sixth step is to examine the correlation of variance for each pair of variables of the dataset and note the pairs that have high correlation. The seventh step is an optional one - I have used other techniques to plot the correlation of variance of the variables graphically. The eigth step is to perform an exploratory analysis on the different age groups using techniques such as scatterplots, lined bar plots, stacked bar plots, box plots and classification pair plots. The ninth step is to perform dimensonality reduction on the variables of the dataset using techniques such as t-distributed stochastic neighbor embedding (t-SNE) and principal component analysis (PCA). The tenth step is to split the dataset into training and testing sets using a suitable training to testing ratio. The eleventh step is to train and test a set of predictive models using supervised and unsupervised machine learning techniques such as classification and clustering, respectively. In this regard, it is important to select the right features for the predictive model. The final step is to improve the models and report the results in order to determine the best machine learning technique. The results include parameters such as model accuracy, sensitivity and specificity. These results are discussed in a later section of this report [12].")
+```
+
+# RESULTS / OBSERVATIONS
+
+```{r echo=FALSE}
+cat("Below are the results and observations from my analysis --")
+```
+
+# Step 1: Loading the Packages for the Purpose of Analysis
+```{r echo=FALSE}
+cat("Loading all the packages for the purpose of analysis. If a package is not present, the code tries to download and install the package, so please make sure that you are connected to the Internet.")
+```
+
+```{r warning=FALSE, message=FALSE}
+packages_vector <- c("tidyr", "gridExtra", "e1071", "MASS", "PerformanceAnalytics", "pysch", "ggplot2", "GGally", "ggcorrplot", "Rtsne", "ggthemes", "rvest", "factoextra", "graphics", "corrplot", "mclust", "caret", "C50", "stats", "cluster", "matrixStats", "rpart", "rpart.plot", "RWeka", "randomForest", "neuralnet", "kernlab", "party", "class", "gbm", "ada", "TTR", "highcharter", "knitr", "kableExtra")
+packages_to_install <- packages_vector[!(packages_vector %in% installed.packages()[,"Package"])]
+if(length(packages_to_install)) install.packages(packages_to_install, repos = "http://cran.us.r-project.org")
+
+options("java.home"="/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib")
+Sys.setenv(LD_LIBRARY_PATH='$JAVA_HOME/server')
+dyn.load('/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/server/libjvm.dylib')
+
+library(tidyr)
+library(gridExtra)
+library(e1071)
+library(MASS)
+library(PerformanceAnalytics)
+library(psych)
+library(ggplot2)
+library(GGally)
+library(ggcorrplot)
+library(Rtsne)
+library(ggthemes)
+library(rvest)
+library(factoextra)
+library(graphics)
+library(corrplot)
+library(mclust)
+library(caret)
+library(C50)
+library(stats)
+library(cluster)
+library(matrixStats)
+library(rpart)
+library(rpart.plot)
+library(RWeka)
+library(randomForest)
+library(neuralnet)
+library(kernlab)
+library(party)
+library(class)
+library(gbm)
+library(ada)
+library(highcharter)
+library(knitr)
+library(kableExtra)
+
+```
+
+# Step 2: Loading the Diabetes Dataset and Printing its Properties
+```{r echo=FALSE}
+cat("While loading the dataset, the code factors the outcome as either Postive (1) or Negative (0), respectively. It then prints the dimensions of the dataset in terms of the number of rows and columns. It also prints the structure of the dataset before printing the summary, header information and distribution of the outcome.")
+```
+
+```{r warning=FALSE, message=FALSE}
+df <- read.csv("/Users/omkarsunkersett/Downloads/diabetes.csv", header = TRUE, stringsAsFactors = FALSE)
+df$Outcome <- as.factor(df$Outcome)
+levels(df$Outcome) <- c("Negative","Positive")
+dim(df)
+str(df)
+summary(df)
+head(df)
+prop.table(table(df$Outcome))
+
+```
+
+# Step 3: Handling the missing values in the dataset
+```{r echo=FALSE}
+cat("The below code removes all of the rows that contain a zero value because such rows are not significant for the purpose of analysis. The code replaces the zero values with NAs and drops these rows using the function drop_na(). It then prints the dimensions of the dataset in terms of the number of rows and columns along with the structure of the dataset, summary, header information and distribution of the outcome. We can observe a decrease in the number of rows by about 55%.")
+```
+
+```{r warning=FALSE, message=FALSE}
+df[df == 0] <- NA
+df <- df %>% drop_na()
+dim(df)
+str(df)
+summary(df)
+head(df)
+prop.table(table(df$Outcome))
+
+```
+
+# Step 4: Examining the histograms
+```{r echo=FALSE}
+cat("The below code generates the histograms for each variable of the dataset using different technqiues. We observe that the Triceps Skin Fold Thickness and Diastolic Blood Pressure variables have a nearly normal distribution, whereas the remaining variables of the dataset are skewed towards to the right.")
+```
+
+```{r warning=FALSE, message=FALSE}
+par(mfrow = c(2, 2))
+hist(df$Pregnancies)
+hist(df$Glucose)
+hist(df$BloodPressure)
+hist(df$SkinThickness)
+hist(df$Insulin)
+hist(df$BMI)
+hist(df$DiabetesPedigreeFunction)
+hist(df$Age)
+
+ggplot(reshape2::melt(df), aes(x=value, fill=variable)) + geom_histogram(binwidth=5) + facet_wrap(~variable)
+
+grid.arrange(ggplot(df, aes(x=df[,1])) + geom_density() + xlab("Pregnancies"), ggplot(df, aes(x=df[,1], col=Outcome)) + geom_density(alpha=0.4) + xlab("Pregnancies"), ncol=2, top=paste("Pregnancies", " [ Skew:",skewness(df[,1]),"]"))
+grid.arrange(ggplot(df, aes(x=df[,2])) + geom_density() + xlab("Glucose"), ggplot(df, aes(x=df[,2], col=Outcome)) + geom_density(alpha=0.4) + xlab("Glucose"), ncol=2, top=paste("Glucose", " [ Skew:",skewness(df[,2]),"]"))
+grid.arrange(ggplot(df, aes(x=df[,3])) + geom_density() + xlab("Blood Pressure"), ggplot(df, aes(x=df[,3], col=Outcome)) + geom_density(alpha=0.4) + xlab("Blood Pressure"), ncol=2, top=paste("Blood Pressure", " [ Skew:",skewness(df[,3]),"]"))
+grid.arrange(ggplot(df, aes(x=df[,4])) + geom_density() + xlab("Skin Thickness"), ggplot(df, aes(x=df[,4], col=Outcome)) + geom_density(alpha=0.4) + xlab("Skin Thickness"), ncol=2, top=paste("Skin Thickness", " [ Skew:",skewness(df[,4]),"]"))
+grid.arrange(ggplot(df, aes(x=df[,5])) + geom_density() + xlab("Insulin"), ggplot(df, aes(x=df[,5], col=Outcome)) + geom_density(alpha=0.4) + xlab("Insulin"), ncol=2, top=paste("Insulin", " [ Skew:",skewness(df[,5]),"]"))
+grid.arrange(ggplot(df, aes(x=df[,6])) + geom_density() + xlab("Body Mass Index"), ggplot(df, aes(x=df[,6], col=Outcome)) + geom_density(alpha=0.4) + xlab("Body Mass Index"), ncol=2, top=paste("Body Mass Index", " [ Skew:",skewness(df[,6]),"]"))
+grid.arrange(ggplot(df, aes(x=df[,7])) + geom_density() + xlab("Diabetes Pedigree Function"), ggplot(df, aes(x=df[,7], col=Outcome)) + geom_density(alpha=0.4) + xlab("Diabetes Pedigree Function"), ncol=2, top=paste("Diabetes Pedigree Function", " [ Skew:",skewness(df[,7]),"]"))
+grid.arrange(ggplot(df, aes(x=df[,8])) + geom_density() + xlab("Age"), ggplot(df, aes(x=df[,8], col=Outcome)) + geom_density(alpha=0.4) + xlab("Age"), ncol=2, top=paste("Age", " [ Skew:",skewness(df[,8]),"]"))
+
+```
+
+# Step 5: Examining some Boxplots and Density Curves
+```{r echo=FALSE}
+cat("Figure 1 is a boxplot of the Diabetes Pedigree Function for each Test Result (Positive or Negative). The boxplot indicates that the median value of the pedigree function is higher for the tests that are positive. The inter-quartile range for this function is slightly greater for the tests that are positive.\n")
+cat("Figure 2 is the density curve for the variable Plasma Glucose for both outcomes (positive or negative). The density curve of the negative outcome has a higher peak value than that of the positive outcome. Notice how these density curves are skewed oppositely.")
+```
+
+```{r warning=FALSE, message=FALSE}
+par(mfrow = c(1, 2))
+boxplot(DiabetesPedigreeFunction ~ Outcome, data = df, ylab = "Diabetes Pedigree Function", xlab = "Test Results", main = "Figure 1", outline = FALSE)
+
+positive <- subset(df, df$Outcome=='Positive')
+negative <- subset(df, df$Outcome=='Negative')
+plot(density(positive$Glucose), xlim = c(0, 250), ylim = c(0.00, 0.02), xlab = "Plasma Glucose", main = "Figure 2", col = "red", lwd = 2)
+lines(density(negative$Glucose), col = "black", lwd = 2)
+legend("topleft", col = c("red", "black"), legend = c("Positive", "Negative"), lwd = 2, bty = "n")
+
+```
+
+# Step 6: Examining the Correlation of Variance for the Dataset
+```{r echo=FALSE}
+cat("The below figures depict the correlation of variance using both chart.Correlation() and pairs.panels(). We observe that the correlation is high between the variable pairs Pregnancies & Age, Skin Thickness & BMI, and Glucose & Insulin.")
+```
+
+```{r warning=FALSE, message=FALSE}
+chart.Correlation(df[,-9], histogram=TRUE, col="grey10", pch=1, main="Chart.Correlation of Variance")
+
+pairs.panels(df[,-9], method="pearson", hist.col = "#1fbbfa", density=TRUE, show.points=TRUE, pch=1, lm=TRUE, cex.cor=1, smoother=FALSE, stars=TRUE, main="Pairs.Panels of Variance")
+
+```
+
+# Step 7: Performing Step 6 using other Functions
+```{r echo=FALSE}
+cat("The below figures depict the correlation of variance using corrplot(), ggpairs(), ggcorr() and ggcorrplot(). We observe that the correlation is high between the variable pairs Pregnancies & Age, Skin Thickness & BMI, and Glucose & Insulin.")
+```
+
+```{r warning=FALSE, message=FALSE}
+corrplot(cor(df[,-9]))
+corrplot(cor(df[,-9]), method = "number", type = "upper",  title = "\nCorrelation Plot of Variance", bg = 0xFF0000, addgrid.col = "darkgray")
+
+ggpairs(df, aes(color=Outcome, alpha=0.80), lower=list(continuous="smooth")) + theme_bw() + labs(title="Correlation Plot of Variance (wrt. Outcome)") + theme(plot.title=element_text(face='bold',color='black',hjust=0.5,size=12))
+
+ggcorr(df[,-9], name = "corr", label = TRUE) + theme(legend.position="none") + labs(title="Correlation Plot of Variance (figure 2)") + theme(plot.title=element_text(face='bold',color='black',hjust=0.5,size=12))
+
+ggcorrplot(round(cor(df[,-9]), 1), hc.order = TRUE, type = "lower", lab = TRUE, lab_size = 3, method="circle", colors = c("red", "green", "blue"), title="Correlation Plot of Variance (figure 3)", ggtheme=theme_bw)
+
+```
+
+# Step 8: Performing some Exploratory Analysis for Age Groups
+```{r echo=FALSE}
+cat("Generating some scatterplots, lined bar plots, stacked bar plots, box plots and classification pair plots for the age groups.")
+```
+
+```{r warning=FALSE, message=FALSE}
+ggplot(data=df, aes(Glucose, Pregnancies)) + geom_jitter(aes(colour = Outcome))
+ggplot(data=df, aes(Glucose,fill= Outcome)) + geom_bar(color = "black", width = 1) + xlab("Plasma Glucose") + ylab("Number of People") + theme(axis.text.x=element_text(angle=75, hjust=1)) + ggtitle("Plasma Glucose and Test Results")
+
+df_ag <- df
+df_ag$AgeGroup <- cut(df_ag$Age, breaks = c(20,35,50,100), labels = FALSE) %>% as.factor()
+df_ag$AgeGroup <- as.integer(df_ag$AgeGroup)
+
+ggplot(data=df_ag, aes(AgeGroup, fill = Outcome),y = (..count..)/sum(..count..)) + geom_bar(color = "black", width = 0.7) + xlab("AgeGroup 20-35, 35-50, 50-100") + ylab("Number of People") + theme(axis.text.x=element_text(angle=75, hjust=1)) + ggtitle("Age Group and Test Results") + stat_bin(geom = "text",aes(label = paste(round((..count..)/sum(..count..)*100), "%")),vjust = 2)
+
+df_ag$AgeGroup <- as.factor(df_ag$AgeGroup)
+ggplot(data=df_ag, aes(Pregnancies, fill = AgeGroup),y = (..count..)/sum(..count..)) + geom_bar(color = "black", width = 0.7) + xlab("Pregnancies") + ylab("Number of People") + theme(axis.text.x=element_text(angle=75, hjust=1)) + ggtitle("Age Group and Pregnancies")
+
+
+myplot <- function(x,y) {
+  ggplot(data = df_ag, aes(eval(parse(text = x)), eval(parse(text = y))))+geom_boxplot(outlier.colour = "blue") + xlab(x) + ylab(y)  + geom_jitter(alpha=0.2, aes(colour = Outcome))
+}
+p1 <- myplot("AgeGroup","SkinThickness")
+p2 <- myplot("AgeGroup","Pregnancies")
+p3 <- myplot("AgeGroup","Glucose")
+p4 <- myplot("AgeGroup","BloodPressure")
+p5 <- myplot("AgeGroup","BMI")
+p6 <- myplot("AgeGroup","Insulin")
+grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 3)
+
+clp <- clPairs(df[,-9], classification = df$Outcome, lower.panel = NULL)
+clPairsLegend(0.1, 0.4, class = clp$class, col = clp$col, pch = clp$pch, title = "Classification Pairs Plot")
+
+```
+
+# Step 9: Performing Dimensionality Reduction on the Variables
+```{r echo=FALSE}
+cat("Using techniques such as t-Distributed Stochastic Neighbor Embedding (t-SNE) and Principal Component Analysis (PCA) to perform dimensionality reduction on the variables of the dataset.")
+```
+
+```{r warning=FALSE, message=FALSE}
+tsne <- function(x) {
+  for (i in c(x)) {
+    result <- Rtsne(df[,-9], perplexity = x, pca = TRUE, check_duplicates = FALSE)
+    return(result$Y)
+  }
+}
+
+x <- c(10, 20, 30, 40, 50)
+df_tsne <- data.frame(tsne(x[1]), tsne(x[2]), tsne(x[3]), tsne(x[4]), tsne(x[5]), class = df$Outcome)
+
+xs <- c(1,3,5,7,9)
+ys <- c(2,4,6,8,10)
+ggplot(df_tsne,aes(x=(df_tsne[,xs[1]]),y=(df_tsne[,ys[1]]),color=class)) + geom_point(size=1.5, alpha=0.6) + labs(x="", y="") + theme(axis.text.x=element_blank(), axis.text.y=element_blank()) + ggtitle(paste("Perplexity:", x[1])) + scale_color_tableau()
+ggplot(df_tsne,aes(x=(df_tsne[,xs[2]]),y=(df_tsne[,ys[2]]),color=class)) + geom_point(size=1.5, alpha=0.6) + labs(x="", y="") + theme(axis.text.x=element_blank(), axis.text.y=element_blank()) + ggtitle(paste("Perplexity:", x[2])) + scale_color_tableau()
+ggplot(df_tsne,aes(x=(df_tsne[,xs[3]]),y=(df_tsne[,ys[3]]),color=class)) + geom_point(size=1.5, alpha=0.6) + labs(x="", y="") + theme(axis.text.x=element_blank(), axis.text.y=element_blank()) + ggtitle(paste("Perplexity:", x[3])) + scale_color_tableau()
+ggplot(df_tsne,aes(x=(df_tsne[,xs[4]]),y=(df_tsne[,ys[4]]),color=class)) + geom_point(size=1.5, alpha=0.6) + labs(x="", y="") + theme(axis.text.x=element_blank(), axis.text.y=element_blank()) + ggtitle(paste("Perplexity:", x[4])) + scale_color_tableau()
+ggplot(df_tsne,aes(x=(df_tsne[,xs[5]]),y=(df_tsne[,ys[5]]),color=class)) + geom_point(size=1.5, alpha=0.6) + labs(x="", y="") + theme(axis.text.x=element_blank(), axis.text.y=element_blank()) + ggtitle(paste("Perplexity:", x[5])) + scale_color_tableau()
+
+mu <- apply(df[,-9], 2, mean)
+df.center <- as.matrix(df[,-9] - mean(mu))
+S <- cov(df.center)
+eigen(S)
+pca1 <- prcomp(as.matrix(df[,-9]), center = TRUE)
+summary(pca1)
+eigen <- get_eigenvalue(pca1)
+eigen
+plot(pca1)
+qualit_vars <- as.factor(df$Outcome)
+biplot(pca1, choices = 1:2, scale = 1, pc.biplot = FALSE)
+fviz_pca_biplot(pca1, axes = c(1, 2), geom = c("point", "text"), col.ind = "black", col.var = "steelblue", label = "all", invisible = "none", repel = T, habillage = qualit_vars, palette = NULL, addEllipses = TRUE, title = "PCA - Biplot")
+
+```
+
+# Step 10: Dividing the Original Dataset into Training and Testing Sets
+```{r echo=FALSE}
+cat("The training dataset contains 70% of the rows from the original dataset, whereas the testing dataset contains the remaining 30%. It is important to check the dimension and distribution of the resulting datasets.")
+```
+
+```{r warning=FALSE, message=FALSE}
+set.seed(12345)
+ckpt <- sample(1:nrow(df), floor(0.70*nrow(df)))
+train <- df[ckpt,]
+test <- df[-ckpt,]
+dim(train)
+dim(test)
+prop.table(table(train$Outcome))
+prop.table(table(test$Outcome))
+
+```
+
+# Step 11: Training and Testing a Set of Models using Supervised and Unsupervised Machine Learning Techniques
+```{r echo=FALSE}
+cat("IMPORTANT NOTE: I have selected all of the attributes (except for Outcome) as features of all of my predictive models. This is because all of the attributes have some effect on the Outcome (Test Results for Diabetes Mellitus). Hence, feature selection has been performed by selecting all of the attributes of the dataset. Moreover, I have used the confusion matrix for calculating the accuracy, sensitivity and specificity of my models. These three are the metrics of evaluation for my results.")
+```
+
+# Using the C5.0 Classification Model --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+c5_model <- C5.0(train[,-9], train$Outcome)
+c5_model
+summary(c5_model)
+plot(c5_model, subtree = 2)
+c5_pred <- predict(c5_model, test[,-9])
+cm_c5_orig <- confusionMatrix(table(c5_pred, test$Outcome))
+cm_c5_orig
+
+set.seed(1234)
+c5_boost <- C5.0(train[,-9], train$Outcome, trials = 6)
+c5_boost
+summary(c5_boost)
+plot(c5_boost, subtree = 2)
+c5_boost_pred <- predict(c5_boost, test[,-9])
+cm_c5_boost <- confusionMatrix(table(c5_boost_pred, test$Outcome))
+cm_c5_boost
+
+```
+
+# Using the Recursive Partitioning (R-PART) Model --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+rp_model <- rpart(Outcome~., data=train, cp=0.01)
+rp_model
+summary(rp_model)
+rpart.plot(rp_model, type = 4, extra = 1, clip.right.labs = FALSE)
+rp_pred <- predict(rp_model, test, type = 'class')
+cm_rp_orig <- confusionMatrix(table(rp_pred, test$Outcome))
+cm_rp_orig
+
+set.seed(1234)
+control <- rpart.control(cp = 0.000, xxval = 100, minsplit = 2)
+rp_model <- rpart(Outcome~., data = train, control = control)
+plotcp(rp_model)
+printcp(rp_model)
+
+set.seed(1234)
+selected_tr <- prune(rp_model, cp = rp_model$cptable[which.min(rp_model$cptable[,"xerror"]), "CP"])
+rpart.plot(selected_tr, type = 4, extra = 1, clip.right.labs = FALSE)
+rp_pred_tune <- predict(selected_tr, test, type = 'class')
+cm_rp_tune <- confusionMatrix(table(rp_pred_tune, test$Outcome))
+cm_rp_tune
+
+```
+
+# Using the One Rule Classification Model --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+oneR_model <- OneR(Outcome~., data = train)
+oneR_model
+summary(oneR_model)
+oneR_pred <- predict(oneR_model, test, type = 'class')
+cm_oneR_orig <- confusionMatrix(oneR_pred, test$Outcome)
+cm_oneR_orig
+
+```
+
+# Using the JRip Rule Learning Model --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+jrip_model <- JRip(Outcome~., data = train)
+jrip_model
+summary(jrip_model)
+jrip_pred <- predict(jrip_model, test, type = 'class')
+cm_jrip_orig <- confusionMatrix(jrip_pred, test$Outcome)
+cm_jrip_orig
+
+```
+
+# Using the Naive Bayes Model (with and without Laplace Smoothing; Laplace Parameter = 50) --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+nb_model <- naiveBayes(train, train$Outcome)
+nb_model
+nb_pred <- predict(nb_model, test)
+cm_nb_orig <- confusionMatrix(table(nb_pred, test$Outcome))
+cm_nb_orig
+
+set.seed(1234)
+nb_lap_model <- naiveBayes(train, train$Outcome, laplace = 50)
+nb_lap_model
+nb_lap_pred <- predict(nb_lap_model, test)
+cm_nb_lapl<- confusionMatrix(table(nb_lap_pred, test$Outcome))
+cm_nb_lapl
+
+```
+
+# Using the Linear Discriminant Analysis (LDA) Model --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+lda_model <- lda(data = train, Outcome~.)
+lda_model
+plot(lda_model)
+lda_pred <- predict(lda_model, test)
+cm_lda_orig <- confusionMatrix(table(lda_pred$class, test$Outcome))
+cm_lda_orig
+
+```
+
+# Using the Random Forest Classification Model --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+rf_model <- randomForest(Outcome~., data = train, ntree = 500, proximity = TRUE, importance = TRUE)
+rf_model
+varImpPlot(rf_model, cex=0.5)
+plot(rf_model, log = "x", main="Random Forest (Error Rate vs. Number of Trees)")
+rf_pred <- predict(rf_model, test)
+cm_rf_orig <- confusionMatrix(table(rf_pred, test$Outcome))
+cm_rf_orig
+
+set.seed(1234)
+rf_new_model <- randomForest(Outcome~., data = train, ntree = 2000, proximity = TRUE, importance = TRUE)
+rf_new_model
+varImpPlot(rf_new_model, cex=0.5)
+plot(rf_new_model, log = "x", main="Random Forest (Error Rate vs. Number of Trees)")
+rf_new_pred <- predict(rf_new_model, test)
+cm_rf_tune <- confusionMatrix(table(rf_new_pred, test$Outcome))
+cm_rf_tune
+
+```
+
+# Using the Classification Tree (C-Tree) Model --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+ctree_model <- ctree(Outcome~., data = train, controls=ctree_control(maxdepth=5))
+ctree_model
+plot(ctree_model)
+ctree_pred <- predict(ctree_model, test)
+cm_ctree_orig <- confusionMatrix(table(ctree_pred, test$Outcome))
+cm_ctree_orig
+
+```
+
+# Using the K-Means Clustering Technique (Best Result: K = 7) --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+df_z <- as.data.frame(lapply(df[,-9], scale))
+km_model <- kmeans(df_z, 3)
+km_model
+sil3 <- silhouette(km_model$cluster, dist(df_z))
+summary(sil3)
+plot(sil3, col=1:length(km_model$size), border=NA)
+
+km_model$centers
+par(mfrow=c(1, 1), mar=c(4, 4, 4, 2))
+myColors <- c("darkblue", "red", "green", "brown", "pink", "purple", "yellow", "orange")
+barplot(t(km_model$centers), beside = TRUE, xlab="cluster", ylab="value", col = myColors) 
+legend("top", ncol=2, legend = c("Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"), fill = myColors)
+
+df_km <- df
+df_km$clusters <- km_model$cluster
+ggplot(df_km, aes(Glucose, BloodPressure), main="Scatterplot: Glucose vs BloodPressure") +
+  geom_point(aes(colour = factor(clusters), shape=factor(clusters), stroke = 8), alpha=1) + 
+  theme_bw(base_size=25) +
+  geom_text(aes(label=ifelse(clusters%in%1, as.character(clusters), ''), hjust=2, vjust=2, colour = factor(clusters)))+
+  geom_text(aes(label=ifelse(clusters%in%2, as.character(clusters), ''), hjust=-2, vjust=2, colour = factor(clusters)))+
+  geom_text(aes(label=ifelse(clusters%in%3, as.character(clusters), ''), hjust=2, vjust=-1, colour = factor(clusters))) + 
+  guides(colour = guide_legend(override.aes = list(size=8))) +
+theme(legend.position="top")
+
+
+kpp_init = function(dat, K) {
+  x = as.matrix(dat)
+  n = nrow(x)
+  # Randomly choose a first center
+  centers = matrix(NA, nrow=K, ncol=ncol(x))
+  set.seed(123)
+  centers[1,] = as.matrix(x[sample(1:n, 1),])
+  for (k in 2:K) {
+    # Calculate dist^2 to closest center for each point
+    dists = matrix(NA, nrow=n, ncol=k-1)
+    for (j in 1:(k-1)) {
+      temp = sweep(x, 2, centers[j,], '-')
+      dists[,j] = rowSums(temp^2)
+    }
+    dists = rowMins(dists)
+    # Draw next center with probability proportional to dist^2
+    cumdists = cumsum(dists)
+    prop = runif(1, min=0, max=cumdists[n])
+    centers[k,] = as.matrix(x[min(which(cumdists > prop)),])
+  }
+  return(centers)
+}
+
+kmp_model <- kmeans(df_z, kpp_init(df_z, 3), iter.max=100, algorithm='Lloyd')
+kmp_model
+kmp_model$centers
+sil3 <- silhouette(kmp_model$cluster, dist(df_z))
+summary(sil3)
+plot(sil3, col=1:length(kmp_model$size), border=NA)
+
+n_rows <- 21
+mat <- matrix(0,nrow = n_rows)
+for (i in 2:n_rows){
+  set.seed(1234)
+  kmp_model <- kmeans(df_z, kpp_init(df_z, i), iter.max=100, algorithm='Lloyd')
+  sil <- silhouette(kmp_model$cluster, dist(df_z))
+  mat[i] <- mean(as.matrix(sil)[,3])
+}
+colnames(mat) <- c("Avg_Silhouette_Value")
+mat
+ggplot(data.frame(k=2:n_rows,sil=mat[2:n_rows]),aes(x=k,y=sil)) + geom_line() + scale_x_continuous(breaks = 2:n_rows)
+
+k <- 2
+set.seed(1234)
+kmp2_model <- kmeans(df_z, kpp_init(df_z, k), iter.max=200, algorithm="MacQueen")
+sil2 <- silhouette(kmp2_model$cluster, dist(df_z))
+summary(sil2)
+plot(sil2, col=1:length(kmp2_model$size), border=NA)
+
+k <- 4
+set.seed(1234)
+kmp4_model <- kmeans(df_z, kpp_init(df_z, k), iter.max=200, algorithm="MacQueen")
+sil4 <- silhouette(kmp4_model$cluster, dist(df_z))
+summary(sil4)
+plot(sil4, col=1:length(kmp4_model$size), border=NA)
+
+k <- 7
+set.seed(1234)
+kmp7_model <- kmeans(df_z, kpp_init(df_z, k), iter.max=200, algorithm="MacQueen")
+sil7 <- silhouette(kmp7_model$cluster, dist(df_z))
+summary(sil7)
+plot(sil7, col=1:length(kmp7_model$size), border=NA)
+
+k <- 8
+set.seed(1234)
+kmp8_model <- kmeans(df_z, kpp_init(df_z, k), iter.max=200, algorithm="MacQueen")
+sil8 <- silhouette(kmp8_model$cluster, dist(df_z))
+summary(sil8)
+plot(sil8, col=1:length(kmp8_model$size), border=NA)
+
+k <- 11
+set.seed(1234)
+kmp11_model <- kmeans(df_z, kpp_init(df_z, k), iter.max=200, algorithm="MacQueen")
+sil11 <- silhouette(kmp11_model$cluster, dist(df_z))
+summary(sil11)
+plot(sil11, col=1:length(kmp11_model$size), border=NA)
+
+cat("\nFrom the above results, the best value for the K parameter would be 7.")
+```
+
+# Using the Generalized Linear Model for Performing Logistic Regression --
+```{r warning=FALSE, message=FALSE}
+glm_model <- glm(Outcome~., family = binomial(link = 'logit'), data = train)
+summary(glm_model)
+glm_pred <- predict(glm_model, test, type = "response")
+table(glm_pred>0.5, test$Outcome)
+glm_acc <- (table(glm_pred>0.5, test$Outcome)[1] + table(glm_pred>0.5, test$Outcome)[4]) / (table(glm_pred>0.5, test$Outcome)[1] + table(glm_pred>0.5, test$Outcome)[2] + table(glm_pred>0.5, test$Outcome)[3] + table(glm_pred>0.5, test$Outcome)[4])
+glm_speci <- table(glm_pred>0.5, test$Outcome)[4] / (table(glm_pred>0.5, test$Outcome)[2] + table(glm_pred>0.5, test$Outcome)[4])
+glm_sensi <- table(glm_pred>0.5, test$Outcome)[1] / (table(glm_pred>0.5, test$Outcome)[1] + table(glm_pred>0.5, test$Outcome)[3])
+cat("\nAccuracy:",glm_acc)
+cat("\nSpecificity:",glm_speci)
+cat("\nSensitivity:",glm_sensi)
+
+```
+
+# Using the Gradient Boosting Method for Modeling --
+```{r warning=FALSE, message=FALSE}
+gbm_model <- gbm(Outcome~., data = train, distribution = "gaussian", n.trees = 10000, shrinkage = 0.01, interaction.depth = 4, bag.fraction = 0.5, train.fraction = 0.5, n.minobsinnode = 10, cv.folds = 3, keep.data = TRUE, verbose = FALSE, n.cores = 1)
+best_iteration <- gbm.perf(gbm_model, method = "cv", plot.it = FALSE)
+fit_control <- trainControl(method = "cv", number = 5, returnResamp = "all")
+gbm_final_model <- train(Outcome~., data = train, method = "gbm", distribution = "bernoulli", trControl = fit_control, verbose = F, tuneGrid = data.frame(.n.trees = best_iteration, .shrinkage = 0.01, .interaction.depth = 1, .n.minobsinnode = 1))
+gbm_pred <- predict(gbm_final_model, test)
+cm_gbm_orig <- confusionMatrix(table(gbm_pred, test$Outcome))
+cm_gbm_orig
+
+```
+
+# Using a Neural Network Model (Error Decreases with Increase in # Hidden Nodes and Layers) --
+```{r warning=FALSE, message=FALSE}
+normalize <- function(x) {
+return((x - min(x)) / (max(x) - min(x)))
+}
+
+nn_train <- as.data.frame(lapply(train[,-9], normalize))
+nn_train$Outcome <- ifelse(train$Outcome == "Positive", 1, 0)
+nn_test <- as.data.frame(lapply(test[,-9], normalize))
+nn_test$Outcome <- ifelse(test$Outcome == "Positive", 1, 0)
+
+nn_model <- neuralnet(Outcome~Pregnancies+Glucose+BloodPressure+SkinThickness+Insulin+BMI+DiabetesPedigreeFunction+Age, data = nn_train, hidden = 1, stepmax = 1e6)
+plot(nn_model, rep = "best")
+nn_pred <- compute(nn_model, nn_test[,-9])
+pred_results <- nn_pred$net.result
+cor(pred_results, nn_test$Outcome)
+
+nnp_model <- neuralnet(Outcome~Pregnancies+Glucose+BloodPressure+SkinThickness+Insulin+BMI+DiabetesPedigreeFunction+Age, data = nn_train, hidden = 10, stepmax = 1e6)
+plot(nnp_model, rep = "best")
+nnp_pred <- compute(nnp_model, nn_test[,-9])
+predp_results <- nnp_pred$net.result
+cor(predp_results, nn_test$Outcome)
+
+nnph_model <- neuralnet(Outcome~Pregnancies+Glucose+BloodPressure+SkinThickness+Insulin+BMI+DiabetesPedigreeFunction+Age, data = nn_train, hidden = c(10,10,10), stepmax = 1e6)
+plot(nnph_model, rep = "best")
+nnph_pred <- compute(nnph_model, nn_test[,-9])
+predph_results <- nnph_pred$net.result
+cor(predph_results, nn_test$Outcome)
+
+```
+
+# Using a Support Vector Machine Model (Radial, Linear & Laplacian) --
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+svm_rbf_model <- ksvm(Outcome~., data = train, kernel = "rbfdot")
+svm_rbf_model
+svm_rbf_pred <- predict(svm_rbf_model, test)
+cm_svm_rbf <- confusionMatrix(table(svm_rbf_pred, test$Outcome))
+cm_svm_rbf
+
+set.seed(1234)
+svm_linear_model <- ksvm(Outcome~., data = train, kernel = "vanilladot")
+svm_linear_model
+svm_linear_pred <- predict(svm_linear_model, test)
+cm_svm_linear <- confusionMatrix(table(svm_linear_pred, test$Outcome))
+cm_svm_linear
+
+set.seed(1234)
+svm_laplace_model <- ksvm(Outcome~., data = train, kernel = "laplacedot")
+svm_laplace_model
+svm_laplace_pred <- predict(svm_laplace_model, test)
+cm_svm_lapl <- confusionMatrix(table(svm_laplace_pred, test$Outcome))
+cm_svm_lapl
+
+```
+
+# Comparing the Accuracy, Sensitivity and Specificity of the Models --
+```{r }
+tab_results <- data.frame(
+  Predictive_Model = c("Original C5.0", "Tuned 5.0", "Original R-PART", "Tuned R-PART", "One R Model", "JRip Model", "Original Naive Bayes", "Laplacian Naive Bayes", "Classification Tree", "LDA Model", "Original Random Forest", "Tuned Random Forest", "Logistic Regression", "Gradient Boosting Model", "Gaussian SVM", "Laplacian SVM"), 
+  Accuracy = c(round(cm_c5_orig$overall[1],6), round(cm_c5_boost$overall[1],6), round(cm_rp_orig$overall[1],6), round(cm_rp_tune$overall[1],6), round(cm_oneR_orig$overall[1],6), round(cm_jrip_orig$overall[1],6), round(cm_nb_orig$overall[1],6), round(cm_nb_lapl$overall[1],6), round(cm_ctree_orig$overall[1],6), round(cm_lda_orig$overall[1],6), round(cm_rf_orig$overall[1],6), round(cm_rf_tune$overall[1],6), round(glm_acc,6), round(cm_gbm_orig$overall[1],6), round(cm_svm_rbf$overall[1],6), round(cm_svm_lapl$overall[1],6)), 
+  Sensitivity = c(round(cm_c5_orig$table[1]/(cm_c5_orig$table[1]+cm_c5_orig$table[3]), 6), 
+                  round(cm_c5_boost$table[1]/(cm_c5_boost$table[1]+cm_c5_boost$table[3]), 6),
+                  round(cm_rp_orig$table[1]/(cm_rp_orig$table[1]+cm_rp_orig$table[3]), 6),
+                  round(cm_rp_tune$table[1]/(cm_rp_tune$table[1]+cm_rp_tune$table[3]), 6),
+                  round(cm_oneR_orig$table[1]/(cm_oneR_orig$table[1]+cm_oneR_orig$table[3]), 6),
+                  round(cm_jrip_orig$table[1]/(cm_jrip_orig$table[1]+cm_jrip_orig$table[3]), 6),
+                  round(cm_nb_orig$table[1]/(cm_nb_orig$table[1]+cm_nb_orig$table[3]), 6),
+                  round(cm_nb_lapl$table[1]/(cm_nb_lapl$table[1]+cm_nb_lapl$table[3]), 6),
+                  round(cm_ctree_orig$table[1]/(cm_ctree_orig$table[1]+cm_ctree_orig$table[3]), 6),
+                  round(cm_lda_orig$table[1]/(cm_lda_orig$table[1]+cm_lda_orig$table[3]), 6),
+                  round(cm_rf_orig$table[1]/(cm_rf_orig$table[1]+cm_rf_orig$table[3]), 6),
+                  round(cm_rf_tune$table[1]/(cm_rf_tune$table[1]+cm_rf_tune$table[3]), 6),
+                  round(glm_sensi, 6),
+                  round(cm_gbm_orig$table[1]/(cm_gbm_orig$table[1]+cm_gbm_orig$table[3]), 6),
+                  round(cm_svm_rbf$table[1]/(cm_svm_rbf$table[1]+cm_svm_rbf$table[3]), 6),
+                  round(cm_svm_lapl$table[1]/(cm_svm_lapl$table[1]+cm_svm_lapl$table[3]), 6)
+                  ), 
+  Specificity = c(round(cm_c5_orig$table[4]/(cm_c5_orig$table[2]+cm_c5_orig$table[4]), 6), 
+                  round(cm_c5_boost$table[4]/(cm_c5_boost$table[2]+cm_c5_boost$table[4]), 6),
+                  round(cm_rp_orig$table[4]/(cm_rp_orig$table[2]+cm_rp_orig$table[4]), 6),
+                  round(cm_rp_tune$table[4]/(cm_rp_tune$table[2]+cm_rp_tune$table[4]), 6),
+                  round(cm_oneR_orig$table[4]/(cm_oneR_orig$table[2]+cm_oneR_orig$table[4]), 6),
+                  round(cm_jrip_orig$table[4]/(cm_jrip_orig$table[2]+cm_jrip_orig$table[4]), 6),
+                  round(cm_nb_orig$table[4]/(cm_nb_orig$table[2]+cm_nb_orig$table[4]), 6),
+                  round(cm_nb_lapl$table[4]/(cm_nb_lapl$table[2]+cm_nb_lapl$table[4]), 6),
+                  round(cm_ctree_orig$table[4]/(cm_ctree_orig$table[2]+cm_ctree_orig$table[4]), 6),
+                  round(cm_lda_orig$table[4]/(cm_lda_orig$table[2]+cm_lda_orig$table[4]), 6),
+                  round(cm_rf_orig$table[4]/(cm_rf_orig$table[2]+cm_rf_orig$table[4]), 6),
+                  round(cm_rf_tune$table[4]/(cm_rf_tune$table[2]+cm_rf_tune$table[4]), 6),
+                  round(glm_speci, 6),
+                  round(cm_gbm_orig$table[4]/(cm_gbm_orig$table[2]+cm_gbm_orig$table[4]), 6),
+                  round(cm_svm_rbf$table[4]/(cm_svm_rbf$table[2]+cm_svm_rbf$table[4]), 6),
+                  round(cm_svm_lapl$table[4]/(cm_svm_lapl$table[2]+cm_svm_lapl$table[4]), 6)
+                  )
+)
+  
+kable(tab_results, "html") %>%
+  kable_styling(bootstrap_options = "striped", font_size = 12) %>%
+  row_spec(c(2,8,10,11,12,13), bold = TRUE, color = "white", background = "green") %>%
+  row_spec(7, bold = TRUE, color = "white", background = "blue")
+
+```
+
+```{r warning=FALSE, message=FALSE}
+col <- c("yellow", "darkblue")
+par(mfrow=c(2,2))
+
+fourfoldplot(cm_c5_orig$table, color = col, conf.level = 0, margin = 1, main=paste("Original C5.0 (",round(cm_c5_orig$overall[1]*100),"%)",sep=""))
+fourfoldplot(cm_c5_boost$table, color = col, conf.level = 0, margin = 1, main=paste("Tuned C5.0 (",round(cm_c5_boost$overall[1]*100),"%)",sep=""))
+
+fourfoldplot(cm_rp_orig$table, color = col, conf.level = 0, margin = 1, main=paste("Original R-PART (",round(cm_rp_orig$overall[1]*100),"%)",sep=""))
+fourfoldplot(cm_rp_tune$table, color = col, conf.level = 0, margin = 1, main=paste("Tuned R-PART (",round(cm_rp_tune$overall[1]*100),"%)",sep=""))
+
+fourfoldplot(cm_oneR_orig$table, color = col, conf.level = 0, margin = 1, main=paste("One R Model (",round(cm_oneR_orig$overall[1]*100),"%)",sep=""))
+fourfoldplot(cm_jrip_orig$table, color = col, conf.level = 0, margin = 1, main=paste("JRip Model (",round(cm_jrip_orig$overall[1]*100),"%)",sep=""))
+
+fourfoldplot(cm_nb_orig$table, color = col, conf.level = 0, margin = 1, main=paste("Original Naive Bayes (",round(cm_nb_orig$overall[1]*100),"%)",sep=""))
+fourfoldplot(cm_nb_lapl$table, color = col, conf.level = 0, margin = 1, main=paste("Laplacian Naive Bayes (",round(cm_nb_lapl$overall[1]*100),"%)",sep=""))
+
+fourfoldplot(cm_ctree_orig$table, color = col, conf.level = 0, margin = 1, main=paste("Classification Tree (",round(cm_ctree_orig$overall[1]*100),"%)",sep=""))
+fourfoldplot(cm_lda_orig$table, color = col, conf.level = 0, margin = 1, main=paste("LDA Model (",round(cm_lda_orig$overall[1]*100),"%)",sep=""))
+
+fourfoldplot(cm_rf_orig$table, color = col, conf.level = 0, margin = 1, main=paste("Original Random Forest (",round(cm_rf_orig$overall[1]*100),"%)",sep=""))
+fourfoldplot(cm_rf_tune$table, color = col, conf.level = 0, margin = 1, main=paste("Tuned Random Forest (",round(cm_rf_tune$overall[1]*100),"%)",sep=""))
+
+fourfoldplot(table(glm_pred>0.5, test$Outcome), color = col, conf.level = 0, margin = 1, main=paste("Logistic Regression (",round(glm_acc*100),"%)",sep=""))
+fourfoldplot(cm_gbm_orig$table, color = col, conf.level = 0, margin = 1, main=paste("Gradient Boosting Model (",round(cm_gbm_orig$overall[1]*100),"%)",sep=""))
+
+fourfoldplot(cm_svm_rbf$table, color = col, conf.level = 0, margin = 1, main=paste("Gaussian SVM (",round(cm_svm_rbf$overall[1]*100),"%)",sep=""))
+fourfoldplot(cm_svm_lapl$table, color = col, conf.level = 0, margin = 1, main=paste("Laplacian SVM (",round(cm_svm_lapl$overall[1]*100),"%)",sep=""))
+
+```
+
+# DISCUSSION OF RESULTS
+```{r echo=FALSE}
+cat("IMPORTANT NOTE: The BEST PERFORMING model has been highlighted in BLUE COLOR amongst the TOP PERFORMING models that have been highlighted in GREEN COLOR.\n
+From the above results, we can conclude that the Naive Bayes Model (without Laplacian smoothing) performs the best with a staggering 97% accuracy as compared to the other models. Surprisingly, Laplacian smoothing causes the accuracy of this model to decrease to 79% with a parameter value of 50. The second-best model from the above list is the Tuned C5.0 model, which has an accuracy of 77%. The third-best model is the Tuned Random Forest Model, having an accuracy of 76%. The models with the highest accuracy are considered to be the best [13].\n
+In regard to the sensitivity of the models, the Naive Bayes Model (without Laplacian smoothing) has the highest sensitivity of 96% followed by the Linear Discriminant Analysis (LDA) Model having a sensitivity of 90%. The Random Forest Model ranks third with a sensitivity of 88%. The higher the sensitivity of a model, the larger is its true positive rate and the better is its recall. The Type-I Error of such a model will likely be low [13].\n
+With respect to the specificity of the models, the Naive Bayes Model (without Laplacian smoothing) has the highest specificity of 97% followed by the Logistic Regression Model having a specificity of 76%. The Naive Bayes Model (with a laplacian smoothing parameter = 50) ranks third with a specificity of 71%. The higher the specificity of a model, the larger is its true negative rate. The Type-II Error of such a model will likely be low [13].")
+
+```
+
+# CONCLUSION
+```{r echo=FALSE}
+cat("From the above discussion, we can conclude that the Naive Bayes Model without Laplacian smoothing is best-suited for this bioinformatics application. This is because this model has the highest accuracy, sensitivity and specificity amongst all of the above models. Indirectly, this model would have the lowest Type-I and Type-II errors too. Since we know the factors that can contribute to diabetes from the exploratory analysis, we can successfully build a predictive model to detect the onset of diabetes mellitus in patients based on the patients' physical attributes and above results.
+")
+```
+
+# ACKNOWLEDGEMENTS
+```{r echo=FALSE}
+cat("I would like to sincerely thank Prof. Ivo D. Dinov for all his encouragement and support in enabling me excel in this course. The homework assignments and in-class activities allowed me to understand much of the material, which ultimately helped me implement this whole project on my own. I would highly recommend taking this class on Data Science and Predictive Analytics (DSPA) if you are a student or professional interested in advancing your knowledge about using R to perform exploratory analyses and implement machine learning algorithms on your own. Thank you very much for such good course material.
+")
+```
+
+# REFERENCES
+```{r echo=FALSE}
+cat("1.  'About diabetes'. World Health Organization. Archived from the original on 31 March 2014. Retrieved 4 April 2014.\n
+2.  'Diabetes Fact sheet N°312'. WHO. October 2013. Archived from the original on 26 August 2013. Retrieved 25 March 2014.\n
+3.  'Update 2015'. ID F. International Diabetes Federation. p. 13. Archived from the original on 22 March 2016. Retrieved 21 March 2016.\n
+4.  Williams textbook of endocrinology (12th ed.). Elsevier/Saunders. pp. 1371–1435. ISBN 978-1-4377-0324-5.\n
+5.  Shi Y, Hu FB (June 2014). 'The global implications of diabetes and cancer'. Lancet. 383 (9933): 1947–8. doi:10.1016/S0140-6736(14)60886-2. PMID 24910221.\n
+6.  Vos T, Flaxman AD, Naghavi M, Lozano R, Michaud C, Ezzati M, et al. (December 2012). 'Years lived with disability (YLDs) for 1160 sequelae of 289 diseases and injuries 1990-2010: a systematic analysis for the Global Burden of Disease Study 2010'. Lancet. 380 (9859): 2163–96. doi:10.1016/S0140-6736(12)61729-2. PMID 23245607.\n
+7.  IDF DIABETES ATLAS (6th ed.). International Diabetes Federation. 2013. p. 7. ISBN 2930229853. Archived from the original (PDF) on 9 June 2014.\n
+8.  'Economic costs of diabetes in the U.S. in 2012'. Diabetes Care. 36 (4): 1033–46. April 2013. doi:10.2337/dc12-2625. PMC 3609540. Freely accessible. PMID 23468086.\n
+9.  Ron Kohavi; Foster Provost (1998). 'Glossary of terms'. Machine Learning. 30: 271–274.\n
+10. Pima Indians Diabetes - dataset by uci. (2017, August 16). Retrieved from https://data.world/uci/pima-indians-diabetes\n
+11. Dua, D. and Karra Taniskidou, E. (2017). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.\n
+12. Dinov, I. (n.d.). Learning Modules. Retrieved from http://www.socr.umich.edu/people/dinov/courses/DSPA_Topics.html\n
+13. Yang, C., Zou, Y., Liu, J., & Mulligan, K. (2015). Predictive model evaluation for PHM. International Journal of Prognostics and Health Management, 5(2), 1-11. Retrieved April 18, 2018, from https://nparc.nrc-cnrc.gc.ca/eng/view/object/?id=dce076fe-03db-4d8c-b097-5ca015aa414d.
+")
+```
+
+
+
+
+
+
+
+
+
